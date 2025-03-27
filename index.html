@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dynamic Memory & Scheduling Visualizer</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body>
+    <div class="container">
+        <h1>Dynamic Memory & Scheduling Visualizer</h1>
+        
+        <div class="toggle-container">
+            <button id="toggleView" class="toggle-btn">
+                <i class="fas fa-exchange-alt"></i> Switch to Scheduling View
+            </button>
+        </div>
+
+        <!-- Memory Management Section -->
+        <div id="memorySection" class="section active">
+            <div class="controls">
+                <div class="control-group">
+                    <label for="memorySize">Total Memory Size (Bytes)</label>
+                    <input type="number" id="memorySize" placeholder="e.g. 500" value="500" min="1">
+                </div>
+                <div class="control-group">
+                    <label for="allocationStrategy">Allocation Strategy</label>
+                    <select id="allocationStrategy">
+                        <option value="first-fit">First Fit</option>
+                        <option value="best-fit">Best Fit</option>
+                        <option value="worst-fit">Worst Fit</option>
+                    </select>
+                </div>
+                <button id="initialize" class="btn primary">
+                    <i class="fas fa-memory"></i> Initialize Memory
+                </button>
+
+                <div class="control-group">
+                    <label for="allocateSize">Allocation Size (Bytes)</label>
+                    <input type="number" id="allocateSize" placeholder="Size to allocate" min="1">
+                </div>
+                <div class="control-group">
+                    <label for="processId">Process ID</label>
+                    <input type="text" id="processId" placeholder="Process identifier">
+                </div>
+                <button id="allocate" class="btn primary">
+                    <i class="fas fa-plus-square"></i> Allocate
+                </button>
+
+                <div class="control-group">
+                    <label for="deallocateProcess">Process to Deallocate</label>
+                    <select id="deallocateProcess" disabled>
+                        <option value="">Select process</option>
+                    </select>
+                </div>
+                <button id="deallocate" class="btn danger">
+                    <i class="fas fa-minus-square"></i> Deallocate
+                </button>
+
+                <button id="defragment" class="btn warning">
+                    <i class="fas fa-compress-alt"></i> Defragment
+                </button>
+                <button id="resetMemory" class="btn warning">
+                    <i class="fas fa-trash-alt"></i> Reset Memory
+                </button>
+            </div>
+
+            <div class="memory-display">
+                <h2>Memory Blocks Visualization</h2>
+                <div class="memory-legend">
+                    <div class="legend-item">
+                        <div class="legend-color allocated"></div>
+                        <span>Allocated</span>
+                    </div>
+                    <div class="legend-item">
+                        <div class="legend-color free"></div>
+                        <span>Free</span>
+                    </div>
+                    <div class="legend-item">
+                        <div class="legend-color fragmented"></div>
+                        <span>Fragmented</span>
+                    </div>
+                </div>
+                <div id="memory-blocks"></div>
+                <div class="memory-stats">
+                    <p>Total Memory: <span id="total-memory">0</span> bytes</p>
+                    <p>Used Memory: <span id="used-memory">0</span> bytes (<span id="used-percentage">0</span>%)</p>
+                    <p>Free Memory: <span id="free-memory">0</span> bytes (<span id="free-percentage">0</span>%)</p>
+                    <p>Fragmentation: <span id="fragmentation">0</span>%</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Scheduling Section -->
+        <div id="schedulingSection" class="section">
+            <div class="controls">
+                <div class="control-group">
+                    <label for="processInput">Processes (Format: Name,Arrival,Burst,Priority)</label>
+                    <textarea id="processInput" rows="3" placeholder="e.g. P1,0,5,1;P2,1,3,2;P3,2,8,3">P1,0,5,1;P2,1,3,2;P3,2,8,3</textarea>
+                </div>
+
+                <div class="control-group">
+                    <label for="schedulingAlgo">Algorithm</label>
+                    <select id="schedulingAlgo">
+                        <option value="fcfs">First Come First Serve (FCFS)</option>
+                        <option value="sjf">Shortest Job First (SJF)</option>
+                        <option value="srtf">Shortest Remaining Time First (SRTF)</option>
+                        <option value="rr">Round Robin (RR)</option>
+                        <option value="priority">Priority (Non-preemptive)</option>
+                        <option value="priority_p">Priority (Preemptive)</option>
+                    </select>
+                </div>
+
+                <div class="control-group" id="quantumGroup" style="display: none;">
+                    <label for="quantumTime">Quantum Time</label>
+                    <input type="number" id="quantumTime" placeholder="Time quantum" value="2" min="1">
+                </div>
+
+                <button id="schedule" class="btn primary">
+                    <i class="fas fa-play"></i> Run Scheduling
+                </button>
+                <button id="addProcess" class="btn secondary">
+                    <i class="fas fa-plus-circle"></i> Add Process
+                </button>
+                <button id="resetSchedule" class="btn warning">
+                    <i class="fas fa-redo"></i> Reset
+                </button>
+            </div>
+
+            <div class="scheduling-display">
+                <h2>Scheduling Gantt Chart</h2>
+                <div id="gantt-chart"></div>
+                <div id="timeline"></div>
+                
+                <div class="results">
+                    <h3>Process Details</h3>
+                    <table id="processTable">
+                        <thead>
+                            <tr>
+                                <th>Process</th>
+                                <th>Arrival</th>
+                                <th>Burst</th>
+                                <th>Priority</th>
+                                <th>Start</th>
+                                <th>Finish</th>
+                                <th>Waiting</th>
+                                <th>Turnaround</th>
+                                <th>Response</th>
+                            </tr>
+                        </thead>
+                        <tbody></tbody>
+                    </table>
+                    
+                    <div id="metrics">
+                        <p id="avg-waiting"></p>
+                        <p id="avg-turnaround"></p>
+                        <p id="avg-response"></p>
+                        <p id="throughput"></p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="output">
+            <div id="output-text"></div>
+        </div>
+    </div>
+    <script src="script.js"></script>
+</body>
+</html>
